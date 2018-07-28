@@ -49,7 +49,7 @@ async function main () {
 main()
 ```
 
-## How is works
+## How it works
 In the above example the endpoints `/hello/:name` and `/goodbye/:name` have been created on the websocket and http servers.
 
 You can make a HTTP request to http://127.0.0.1/hello/tester as you would normally in express.
