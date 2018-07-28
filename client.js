@@ -1,8 +1,8 @@
-const io = require('socket.io')()
-const wildcard = require('socketio-wildcard')
+import io from 'socket.io-client'
+import wildcard from 'socketio-wildcard'
 const patch = wildcard(io.Manager)
 
-class RestocketClient {
+export default class RestocketClient {
   constructor () {
     this.emitCount = 0
 
@@ -19,7 +19,6 @@ class RestocketClient {
         const headers = message.data[0][1]
         const body = message.data[0][2]
 
-        console.log(headers._cid, correlationId)
         if (headers._cid === correlationId) {
           this.socket.removeListener('*', watcher)
           resolve({body, headers})
@@ -47,5 +46,3 @@ class RestocketClient {
     return wait
   }
 }
-
-module.exports = RestocketClient

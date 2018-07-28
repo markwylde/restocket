@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
-    "socket.io": "^2.1.1",
+    "path-to-regexp": "^2.2.1",
+    "socket.io": "2.0.4",
+    "socket.io-client": "^2.0.4",
     "socketio-wildcard": "^2.0.0"
   },
   "author": "",
