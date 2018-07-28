@@ -2,8 +2,9 @@
 This library allows you to build apis like in express, but that expose a websocket and http(s) endpoint.
 
 ## Example Usage
+### Server Side
 ```javascript
-const Restocket = require('restocket')
+const Restocket = require('restocket').RestocketServer
 const server = new Restocket()
 
 // Receive an event when a client connects via websocket
@@ -24,7 +25,6 @@ routes.get('/goodbye/:name', function (req, res) {
 
 server.use(routes)
 
-
 // Start the websocket and http instance
 server.start({
   port: 3000
@@ -33,4 +33,18 @@ server.start({
 })
 ```
 
+### Client Side
+```javascript
+const Restocket = require('restocket').RestocketClient
 
+const api = new Restocket({
+  host: '127.0.0.1'
+})
+
+async function main () {
+  const result = await opts.api.get('/hello/tester')
+  console.log(result)
+}
+
+main()
+```
