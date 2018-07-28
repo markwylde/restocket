@@ -4,8 +4,8 @@ This library allows you to build apis like in express, but that expose a websock
 ## Example Usage
 ### Server Side
 ```javascript
-const Restocket = require('restocket').RestocketServer
-const server = new Restocket()
+const {RestocketServer} = require('restocket')
+const server = new RestocketServer()
 
 // Receive an event when a client connects via websocket
 server.onSocketConnected(function (req, res) {
@@ -18,7 +18,8 @@ server.get('/hello/:name', function (req, res) {
 })
 
 // You can also use other Restocket instances
-const routes = new Restocket()
+const {RestocketRouter} = require('restocket')
+const routes = new RestocketRouter()
 routes.get('/goodbye/:name', function (req, res) {
   res.send({ message: `Goodbye ${name}` })
 })
@@ -35,9 +36,9 @@ server.start({
 
 ### Client Side
 ```javascript
-const Restocket = require('restocket').RestocketClient
+const {RestocketClient} = require('restocket')
 
-const api = new Restocket({
+const api = new RestocketClient({
   host: '127.0.0.1'
 })
 
