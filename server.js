@@ -12,7 +12,7 @@ const flatten = (fns, fn) => {
     .forEach(el => fn(el))
 }
 
-function Restocket () {
+function RestocketServer () {
   this.middleware = []
 
   this.use = (fns) =>
@@ -123,4 +123,4 @@ function Restocket () {
   }
 }
 
-module.exports = Restocket
+module.exports = RestocketServer

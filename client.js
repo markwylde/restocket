@@ -1,8 +1,8 @@
-/* globals io */
+const io = require('socket.io')()
 const wildcard = require('socketio-wildcard')
 const patch = wildcard(io.Manager)
 
-export default class Restocket {
+class RestocketClient {
   constructor () {
     this.emitCount = 0
 
@@ -47,3 +47,5 @@ export default class Restocket {
     return wait
   }
 }
+
+module.exports = RestocketClient
