@@ -57,7 +57,7 @@ You can make a HTTP request to http://127.0.0.1/hello/tester as you would normal
 You can make a websocket request to ws://127.0.0.1 with the following data:
 ```json
 // string Method, string Path, optional object Headers, optional any Body
-['GET', '/hello/:name']
+["GET", "/hello/tester"]
 ```
 
 ### Correlation ID
@@ -69,12 +69,12 @@ For example:
 
 1. Send the following to the websocket
 ```javascript
-['GET', '/hello/tester', { _cid: 1 }]
+["GET", "/hello/tester", { "_cid": 1 }]
 ```
 
 2. Receive the following from the server
 ```javascript
-['RESP', { _cid: 1 }, { message: `Hello ${tester}` }]
+["RESP", { "_cid": 1 }, { "message": "Hello tester" }]
 ```
 
 #### Using RestocketClient
