@@ -1,10 +1,11 @@
 {
   "name": "restocket",
   "version": "1.0.0",
-  "description": "",
+  "description": "This library allows you to build apis like in express, but that expose a websocket and http(s) endpoint.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "dependencies": {
     "path-to-regexp": "^2.2.1",

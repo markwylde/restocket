@@ -54,6 +54,40 @@ function RestocketServer () {
       this.middleware.push(['DELETE', route, fn])
     })
 
+  this.executeRequest = (req, res, {method, route, headers, body, socket}) => {
+    if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].find(el => method)) {
+      console.log(`method [${method}] not allowed`)
+      return
+    }
+
+    this.middleware
+      .filter(mw => mw[0] === method)
+      .forEach(mw => {
+        let keys = []
+        const re = pathToRegexp(mw[1], keys)
+        const paramsRaw = re.exec(route)
+        if (paramsRaw) {
+          paramsRaw.shift()
+          const params = paramsRaw.reduce((prev, cur, idx) => {
+            prev[keys[idx].name] = cur
+            return prev
+          }, {})
+
+          mw[2](Object.assign({}, req, {
+            method,
+            route,
+            params,
+            headers,
+            body
+          }), Object.assign({}, res, {
+            send: function (message) {
+              socket.emit(['RESP', {_cid: headers._cid}, message])
+            }
+          }))
+        }
+      })
+  }
+
   this.start = function (opts) {
     return new Promise((resolve, reject) => {
       opts = Object.assign({
@@ -68,50 +102,26 @@ function RestocketServer () {
 
       const io = require('socket.io')(server)
       io.on('connection', (socket) => {
-        const state = {}
+        const req = {
+          socket,
+          state: {}
+        }
+
+        const res = {
+          send: function (message) {
+            socket.emit(message)
+          }
+        }
+
         this.middleware
           .filter(mw => mw[0] === 'CONNECT')
           .forEach(mw =>
-            mw[2](Object.assign(socket, {state}), {
-              send: function (message) {
-                socket.emit(message)
-              }
-            })
+            mw[2](req, res)
           )
         socket.use((socketRequest, next) => {
           const [method, route, headers, body] = socketRequest[0]
 
-          if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].find(el => method)) {
-            console.log(`method [${method}] not allowed`)
-            return
-          }
-
-          this.middleware
-            .filter(mw => mw[0] === method)
-            .forEach(mw => {
-              let keys = []
-              const re = pathToRegexp(mw[1], keys)
-              const paramsRaw = re.exec(route)
-              if (paramsRaw) {
-                paramsRaw.shift()
-                const params = paramsRaw.reduce((prev, cur, idx) => {
-                  prev[keys[idx].name] = cur
-                  return prev
-                }, {})
-
-                mw[2]({
-                  method,
-                  route,
-                  params,
-                  headers,
-                  body
-                }, {
-                  send: function (message) {
-                    socket.emit(['RESP', {_cid: headers._cid}, message])
-                  }
-                })
-              }
-            })
+          this.executeRequest(req, res, {method, route, headers, body, socket})
         })
       })
 
