@@ -1,5 +1,6 @@
 const http = require('http')
 const pathToRegexp = require('path-to-regexp')
+const querystring = require('querystring')
 
 const flatten = (fns, fn) => {
   function _flatten (arr) {
@@ -29,7 +30,7 @@ function RestocketServer () {
       this.middleware.push(['ALL', route, fn])
     })
 
-  this.GET = (route, fns) =>
+  this.get = (route, fns) =>
     flatten(fns, fn => {
       this.middleware.push(['GET', route, fn])
     })
@@ -54,19 +55,23 @@ function RestocketServer () {
       this.middleware.push(['DELETE', route, fn])
     })
 
-  this.executeRequest = (req, res, {method, route, headers, body, socket}) => {
+  this.executeRequest = (req, res, {method, route, query, headers, body, socket}) => {
     if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].find(el => method)) {
       console.log(`method [${method}] not allowed`)
       return
     }
 
-    this.middleware
+    const middleware = this.middleware
       .filter(mw => mw[0] === method)
+
+    let found = false
+    middleware
       .forEach(mw => {
         let keys = []
         const re = pathToRegexp(mw[1], keys)
         const paramsRaw = re.exec(route)
         if (paramsRaw) {
+          found = true
           paramsRaw.shift()
           const params = paramsRaw.reduce((prev, cur, idx) => {
             prev[keys[idx].name] = cur
@@ -78,6 +83,7 @@ function RestocketServer () {
             route,
             params,
             headers,
+            query,
             body
           }), Object.assign({}, res, {
             send: function (message) {
@@ -86,6 +92,17 @@ function RestocketServer () {
           }))
         }
       })
+
+    if (!found) {
+      console.log('no router found for: ', {method, route, query})
+      socket.emit(['RESP', {_cid: headers._cid}, {
+        status: 404,
+        error: {
+          code: 'NOT_FOUND',
+          friendly: 'Route could not be found'
+        }
+      }])
+    }
   }
 
   this.start = function (opts) {
@@ -97,7 +114,7 @@ function RestocketServer () {
 
       const server = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'text/plain' })
-        res.end('okay')
+        res.end('http not implemented')
       })
 
       const io = require('socket.io')(server)
@@ -119,9 +136,12 @@ function RestocketServer () {
             mw[2](req, res)
           )
         socket.use((socketRequest, next) => {
-          const [method, route, headers, body] = socketRequest[0]
+          const [method, url, headers, body] = socketRequest[0]
 
-          this.executeRequest(req, res, {method, route, headers, body, socket})
+          let [route, query] = url.split('?')
+          query = querystring.parse(query)
+
+          this.executeRequest(req, res, {method, route, query, headers, body, socket})
         })
       })
 
