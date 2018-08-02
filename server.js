@@ -88,6 +88,9 @@ function RestocketServer () {
           }), Object.assign({}, res, {
             send: function (message) {
               socket.emit(['RESP', {_cid: headers._cid}, message])
+            },
+            emit: function (message) {
+              socket.emit(message)
             }
           }))
         }
