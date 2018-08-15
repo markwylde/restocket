@@ -61,4 +61,13 @@ export default class RestocketClient {
 
     return wait
   }
+
+  async put (path, body) {
+    const cid = this.emitCount++
+    const wait = this.waitForMessage(cid)
+
+    this.socket.emit(['PUT', path, {_cid: cid}, body])
+
+    return wait
+  }
 }
