@@ -55,8 +55,18 @@ function RestocketServer () {
       this.middleware.push(['DELETE', route, fn])
     })
 
+  this.subscribe = (route, fns) =>
+    flatten(fns, fn => {
+      this.middleware.push(['SUB', route, fn])
+    })
+
+  this.unsubscribe = (route, fns) =>
+    flatten(fns, fn => {
+      this.middleware.push(['UNSUB', route, fn])
+    })
+
   this.executeRequest = (req, res, {method, route, query, headers, body, socket}) => {
-    if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].find(el => method)) {
+    if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'SUB', 'UNSUB'].find(el => method)) {
       console.log(`method [${method}] not allowed`)
       return
     }
@@ -70,6 +80,7 @@ function RestocketServer () {
         let keys = []
         const re = pathToRegexp(mw[1], keys)
         const paramsRaw = re.exec(route)
+
         if (paramsRaw) {
           found = true
           paramsRaw.shift()

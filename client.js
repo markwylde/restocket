@@ -44,6 +44,23 @@ export default class RestocketClient {
     })
   }
 
+  waitForMessages (correlationId, cb) {
+    const watcher = (message) => {
+      if (message.data[0][0] === 'RESP') {
+        const headers = message.data[0][1]
+        const body = message.data[0][2]
+        this.socket.removeListener('*', watcher)
+        cb(null, {body, headers})
+      }
+    }
+    this.socket.on('*', watcher)
+    return {
+      unsubscribe: () => {
+        this.socket.off('*', watcher)
+      }
+    }
+  }
+
   async get (path) {
     const cid = this.emitCount++
     const wait = this.waitForMessage(cid)
@@ -69,5 +86,15 @@ export default class RestocketClient {
     this.socket.emit(['PUT', path, {_cid: cid}, body])
 
     return wait
+  }
+
+  async subscribe (path, body, cb) {
+    const cid = this.emitCount++
+    const wait = this.waitForMessage(cid)
+
+    this.socket.emit(['SUB', path, {_cid: cid}, body])
+    await wait
+
+    return this.waitForMessages(cid, cb)
   }
 }
