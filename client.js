@@ -90,11 +90,12 @@ export default class RestocketClient {
 
   async subscribe (path, body, cb) {
     const cid = this.emitCount++
-    const wait = this.waitForMessage(cid)
+    const msgPromise = this.waitForMessage(cid)
 
     this.socket.emit(['SUB', path, {_cid: cid}, body])
-    await wait
 
-    return this.waitForMessages(cid, cb)
+    const msg = await msgPromise
+
+    return Object.assign({}, msg, this.waitForMessages(cid, cb))
   }
 }
