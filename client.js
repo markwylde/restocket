@@ -11,7 +11,7 @@ export default class RestocketClient {
     this._eventEmitter = new EventEmitter()
 
     this.addEventListener = this._eventEmitter.addListener.bind(this._eventEmitter)
-    this.removeEventListener = this._eventEmitter.addListener.bind(this._eventEmitter)
+    this.removeEventListener = this._eventEmitter.removeListener.bind(this._eventEmitter)
 
     this.socket = io(opts.host, {
       transports: ['websocket']
