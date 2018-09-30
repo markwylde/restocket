@@ -88,6 +88,15 @@ export default class RestocketClient {
     return wait
   }
 
+  async delete (path, body) {
+    const cid = this.emitCount++
+    const wait = this.waitForMessage(cid)
+
+    this.socket.emit(['DELETE', path, {_cid: cid}, body])
+
+    return wait
+  }
+
   async subscribe (path, body, cb) {
     const cid = this.emitCount++
     const msgPromise = this.waitForMessage(cid)
