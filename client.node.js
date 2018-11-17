@@ -62,11 +62,13 @@ class RestocketClient {
 
   waitForMessages (correlationId, cb) {
     const watcher = (message) => {
-      if (message.data[0][0] === 'RESP') {
-        const headers = message.data[0][1]
-        const body = message.data[0][2]
-        this.socket.removeListener('*', watcher)
-        cb(null, {body, headers})
+      if (Array.isArray(message.data[0])) {
+        const headers = message.data[0][2]
+        const body = message.data[0][3]
+
+        if (headers._cid === correlationId) {
+          cb({headers, body})
+        }
       }
     }
     this.socket.on('*', watcher)
@@ -114,6 +116,10 @@ class RestocketClient {
   }
 
   async subscribe (path, body, cb) {
+    if (!cb) {
+      throw new Error('cb must be provided')
+    }
+
     const cid = this.emitCount++
     const msgPromise = this.waitForMessage(cid)
 
@@ -124,15 +130,13 @@ class RestocketClient {
     return Object.assign({}, msg, this.waitForMessages(cid, cb))
   }
 
-  async unsubscribe (path, body, cb) {
+  async unsubscribe (path, body) {
     const cid = this.emitCount++
-    const msgPromise = this.waitForMessage(cid)
+    const wait = this.waitForMessage(cid)
 
     this.socket.emit(['UNSUB', path, {_cid: cid}, body])
 
-    const msg = await msgPromise
-
-    return Object.assign({}, msg, this.waitForMessages(cid, cb))
+    return wait
   }
 }
 
