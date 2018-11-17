@@ -123,6 +123,17 @@ class RestocketClient {
 
     return Object.assign({}, msg, this.waitForMessages(cid, cb))
   }
+
+  async unsubscribe (path, body, cb) {
+    const cid = this.emitCount++
+    const msgPromise = this.waitForMessage(cid)
+
+    this.socket.emit(['UNSUB', path, {_cid: cid}, body])
+
+    const msg = await msgPromise
+
+    return Object.assign({}, msg, this.waitForMessages(cid, cb))
+  }
 }
 
 module.exports = RestocketClient
