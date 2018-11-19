@@ -43,7 +43,7 @@ const api = new RestocketClient({
 })
 
 async function main () {
-  const result = await opts.api.get('/hello/tester')
+  const result = await api.get('/hello/tester')
   console.log(result)
 }
 
