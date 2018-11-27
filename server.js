@@ -25,6 +25,10 @@ function RestocketServer () {
     flatten(fns, fn =>
       this.middleware.push(['CONNECT', undefined, fn]))
 
+  this.onSocketDisconnected = (fns) =>
+    flatten(fns, fn =>
+      this.middleware.push(['DISCONNECT', undefined, fn]))
+
   this.all = (route, fns) =>
     flatten(fns, fn => {
       this.middleware.push(['ALL', route, fn])
@@ -65,7 +69,7 @@ function RestocketServer () {
       this.middleware.push(['UNSUB', route, fn])
     })
 
-  this.executeRequest = (req, res, {method, route, query, headers, body, socket}) => {
+  this.executeRequest = (req, res, { method, route, query, headers, body, socket }) => {
     if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'SUB', 'UNSUB'].find(el => method)) {
       console.log(`method [${method}] not allowed`)
       return
@@ -98,7 +102,7 @@ function RestocketServer () {
             body
           }), Object.assign({}, res, {
             send: function (message) {
-              socket.emit(['RESP', {_cid: headers._cid}, message])
+              socket.emit(['RESP', { _cid: headers._cid }, message])
             },
             emit: function (message) {
               socket.emit(message)
@@ -108,8 +112,8 @@ function RestocketServer () {
       })
 
     if (!found) {
-      console.log('no router found for: ', {method, route, query})
-      socket.emit(['RESP', {_cid: headers._cid}, {
+      console.log('no router found for: ', { method, route, query })
+      socket.emit(['RESP', { _cid: headers._cid }, {
         status: 404,
         error: {
           code: 'NOT_FOUND',
@@ -149,13 +153,22 @@ function RestocketServer () {
           .forEach(mw =>
             mw[2](req, res)
           )
+
+        socket.on('disconnect', () => {
+          this.middleware
+            .filter(mw => mw[0] === 'DISCONNECT')
+            .forEach(mw =>
+              mw[2](req, res)
+            )
+        })
+
         socket.use((socketRequest, next) => {
           const [method, url, headers, body] = socketRequest[0]
 
           let [route, query] = url.split('?')
           query = querystring.parse(query)
 
-          this.executeRequest(req, res, {method, route, query, headers, body, socket})
+          this.executeRequest(req, res, { method, route, query, headers, body, socket })
         })
       })
 

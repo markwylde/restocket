@@ -60,14 +60,14 @@ class RestocketClient {
     })
   }
 
-  waitForMessages (correlationId, cb) {
+  waitForMessages (correlationId, fn) {
     const watcher = (message) => {
       if (Array.isArray(message.data[0])) {
         const headers = message.data[0][2]
         const body = message.data[0][3]
 
         if (headers._cid === correlationId) {
-          if (cb) cb({ headers, body })
+          if (fn) fn({ headers, body })
         }
       }
     }
