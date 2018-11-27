@@ -23,7 +23,7 @@ export default class RestocketClient {
         const route = message.data[0][1]
         const headers = message.data[0][2]
         const body = message.data[0][3]
-        this._eventEmitter.emit('message', {method, route, body, headers})
+        this._eventEmitter.emit('message', { method, route, body, headers })
       }
     })
 
@@ -37,7 +37,7 @@ export default class RestocketClient {
           const headers = message.data[0][1]
           const body = message.data[0][2]
           this.socket.removeListener('*', watcher)
-          resolve({body, headers})
+          resolve({ body, headers })
         }
       }
       this.socket.on('*', watcher)
@@ -51,7 +51,7 @@ export default class RestocketClient {
         const body = message.data[0][3]
 
         if (headers._cid === correlationId) {
-          cb({headers, body})
+          if (cb) cb({ headers, body })
         }
       }
     }
@@ -67,7 +67,7 @@ export default class RestocketClient {
     const cid = this.emitCount++
     const wait = this.waitForMessage(cid)
 
-    this.socket.emit(['GET', path, {_cid: cid}])
+    this.socket.emit(['GET', path, { _cid: cid }])
 
     return wait
   }
@@ -76,7 +76,7 @@ export default class RestocketClient {
     const cid = this.emitCount++
     const wait = this.waitForMessage(cid)
 
-    this.socket.emit(['POST', path, {_cid: cid}, body])
+    this.socket.emit(['POST', path, { _cid: cid }, body])
 
     return wait
   }
@@ -85,7 +85,7 @@ export default class RestocketClient {
     const cid = this.emitCount++
     const wait = this.waitForMessage(cid)
 
-    this.socket.emit(['PUT', path, {_cid: cid}, body])
+    this.socket.emit(['PUT', path, { _cid: cid }, body])
 
     return wait
   }
@@ -94,7 +94,7 @@ export default class RestocketClient {
     const cid = this.emitCount++
     const wait = this.waitForMessage(cid)
 
-    this.socket.emit(['DELETE', path, {_cid: cid}, body])
+    this.socket.emit(['DELETE', path, { _cid: cid }, body])
 
     return wait
   }
@@ -103,7 +103,7 @@ export default class RestocketClient {
     const cid = this.emitCount++
     const msgPromise = this.waitForMessage(cid)
 
-    this.socket.emit(['SUB', path, {_cid: cid}, body])
+    this.socket.emit(['SUB', path, { _cid: cid }, body])
 
     const msg = await msgPromise
 
@@ -114,7 +114,7 @@ export default class RestocketClient {
     const cid = this.emitCount++
     const wait = this.waitForMessage(cid)
 
-    this.socket.emit(['UNSUB', path, {_cid: cid}, body])
+    this.socket.emit(['UNSUB', path, { _cid: cid }, body])
 
     return wait
   }
