@@ -50,10 +50,12 @@ class RestocketClient {
     return new Promise((resolve, reject) => {
       const watcher = (message) => {
         if (message.data[0][0] === 'RESP') {
-          const headers = message.data[0][1]
-          const body = message.data[0][2]
-          this.socket.removeListener('*', watcher)
-          resolve({ body, headers })
+          if (message.data[0][1]._cid === correlationId) {
+            const headers = message.data[0][1]
+            const body = message.data[0][2]
+            this.socket.removeListener('*', watcher)
+            resolve({ body, headers })
+          }
         }
       }
       this.socket.on('*', watcher)
