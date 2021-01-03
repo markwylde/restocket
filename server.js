@@ -174,7 +174,7 @@ function RestocketServer () {
 
       server.listen(opts.port, opts.host, (err) => {
         if (err) return reject(err)
-        resolve()
+        resolve(server)
       })
     })
   }
