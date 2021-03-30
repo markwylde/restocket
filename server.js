@@ -1,5 +1,5 @@
 const http = require('http')
-const pathToRegexp = require('path-to-regexp')
+const { pathToRegexp } = require('path-to-regexp')
 const querystring = require('querystring')
 
 const flatten = (fns, fn) => {
