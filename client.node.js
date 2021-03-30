@@ -1,6 +1,6 @@
 const io = require('socket.io-client')
 const wildcard = require('socketio-wildcard')
-const EventEmitter = require('wolfy87-eventemitter')
+const EventEmitter = require('events')
 
 const patch = wildcard(io.Manager)
 

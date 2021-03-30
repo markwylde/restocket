@@ -1,6 +1,6 @@
 import io from 'socket.io-client'
 import wildcard from 'socketio-wildcard'
-import EventEmitter from 'wolfy87-eventemitter'
+import EventEmitter from 'events'
 
 const patch = wildcard(io.Manager)
 
