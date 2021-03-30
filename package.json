@@ -1,6 +1,6 @@
 {
   "name": "restocket",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "This library allows you to build apis like in express, but that expose a websocket and http(s) endpoint.",
   "main": "index.js",
   "scripts": {
