@@ -52,8 +52,15 @@ export default class RestocketClient {
         const headers = message.data[0][2]
         const body = message.data[0][3]
 
-        if (headers._cid === correlationId) {
-          if (fn) fn({ headers, body })
+        if (headers && headers._cid === correlationId) {
+          if (fn) {
+            fn({
+              method: message.data[0][0],
+              path: message.data[0][1],
+              headers,
+              body
+            })
+          }
         }
       }
     }
