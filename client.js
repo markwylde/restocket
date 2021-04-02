@@ -1,33 +1,33 @@
-import io from 'socket.io-client'
-import wildcard from 'socketio-wildcard'
-import EventEmitter from 'events'
+import io from 'socket.io-client';
+import wildcard from 'socketio-wildcard';
+import EventEmitter from 'events';
 
-const patch = wildcard(io.Manager)
+const patch = wildcard(io.Manager);
 
 export default class RestocketClient {
   constructor (opts) {
-    this.emitCount = 0
+    this.emitCount = 0;
 
-    this._eventEmitter = new EventEmitter()
+    this._eventEmitter = new EventEmitter();
 
-    this.addEventListener = this._eventEmitter.addListener.bind(this._eventEmitter)
-    this.removeEventListener = this._eventEmitter.removeListener.bind(this._eventEmitter)
+    this.addEventListener = this._eventEmitter.addListener.bind(this._eventEmitter);
+    this.removeEventListener = this._eventEmitter.removeListener.bind(this._eventEmitter);
 
     this.socket = io(opts.host, {
       transports: ['websocket']
-    })
+    });
 
     this.socket.on('*', (message) => {
       if (message.data[0][0] !== 'RESP') {
-        const method = message.data[0][0]
-        const route = message.data[0][1]
-        const headers = message.data[0][2]
-        const body = message.data[0][3]
-        this._eventEmitter.emit('message', { method, route, body, headers })
+        const method = message.data[0][0];
+        const route = message.data[0][1];
+        const headers = message.data[0][2];
+        const body = message.data[0][3];
+        this._eventEmitter.emit('message', { method, route, body, headers });
       }
-    })
+    });
 
-    patch(this.socket)
+    patch(this.socket);
   }
 
   waitForMessage (correlationId) {
@@ -35,22 +35,22 @@ export default class RestocketClient {
       const watcher = (message) => {
         if (message.data[0][0] === 'RESP') {
           if (message.data[0][1]._cid === correlationId) {
-            const headers = message.data[0][1]
-            const body = message.data[0][2]
-            this.socket.removeListener('*', watcher)
-            resolve({ body, headers })
+            const headers = message.data[0][1];
+            const body = message.data[0][2];
+            this.socket.removeListener('*', watcher);
+            resolve({ body, headers });
           }
         }
-      }
-      this.socket.on('*', watcher)
-    })
+      };
+      this.socket.on('*', watcher);
+    });
   }
 
   waitForMessages (correlationId, fn) {
     const watcher = (message) => {
       if (Array.isArray(message.data[0])) {
-        const headers = message.data[0][2]
-        const body = message.data[0][3]
+        const headers = message.data[0][2];
+        const body = message.data[0][3];
 
         if (headers && headers._cid === correlationId) {
           if (fn) {
@@ -59,72 +59,73 @@ export default class RestocketClient {
               path: message.data[0][1],
               headers,
               body
-            })
+            });
           }
         }
       }
-    }
-    this.socket.on('*', watcher)
+    };
+    this.socket.on('*', watcher);
     return {
-      unsubscribe: () => {
-        this.socket.off('*', watcher)
+      unsubscribe: (cb) => {
+        this.unsubscribe(correlationId, cb);
+        this.socket.off('*', watcher);
       }
-    }
+    };
   }
 
   async get (path) {
-    const cid = this.emitCount++
-    const wait = this.waitForMessage(cid)
+    const cid = this.emitCount++;
+    const wait = this.waitForMessage(cid);
 
-    this.socket.emit(['GET', path, { _cid: cid }])
+    this.socket.emit(['GET', path, { _cid: cid }]);
 
-    return wait
+    return wait;
   }
 
   async post (path, body) {
-    const cid = this.emitCount++
-    const wait = this.waitForMessage(cid)
+    const cid = this.emitCount++;
+    const wait = this.waitForMessage(cid);
 
-    this.socket.emit(['POST', path, { _cid: cid }, body])
+    this.socket.emit(['POST', path, { _cid: cid }, body]);
 
-    return wait
+    return wait;
   }
 
   async put (path, body) {
-    const cid = this.emitCount++
-    const wait = this.waitForMessage(cid)
+    const cid = this.emitCount++;
+    const wait = this.waitForMessage(cid);
 
-    this.socket.emit(['PUT', path, { _cid: cid }, body])
+    this.socket.emit(['PUT', path, { _cid: cid }, body]);
 
-    return wait
+    return wait;
   }
 
   async delete (path, body) {
-    const cid = this.emitCount++
-    const wait = this.waitForMessage(cid)
+    const cid = this.emitCount++;
+    const wait = this.waitForMessage(cid);
 
-    this.socket.emit(['DELETE', path, { _cid: cid }, body])
+    this.socket.emit(['DELETE', path, { _cid: cid }, body]);
 
-    return wait
+    return wait;
   }
 
   async subscribe (path, body, cb) {
-    const cid = this.emitCount++
-    const msgPromise = this.waitForMessage(cid)
+    const cid = this.emitCount++;
+    const msgPromise = this.waitForMessage(cid);
 
-    this.socket.emit(['SUB', path, { _cid: cid }, body])
+    this.socket.emit(['SUB', path, { _cid: cid }, body]);
 
-    const msg = await msgPromise
+    const msg = await msgPromise;
 
-    return Object.assign({}, msg, this.waitForMessages(cid, cb))
+    return Object.assign({}, msg, this.waitForMessages(cid, cb));
   }
 
-  async unsubscribe (path, body, cb) {
-    const cid = this.emitCount++
-    const wait = this.waitForMessage(cid)
+  async unsubscribe (subscriptionCid) {
+    const cid = this.emitCount++;
+    const wait = this.waitForMessage(cid);
 
-    this.socket.emit(['UNSUB', path, { _cid: cid }, body])
+    this.socket.emit(['UNSUB', '/', { _cid: cid }, subscriptionCid]);
 
-    return wait
+    return wait;
   }
 }
