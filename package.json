@@ -11,7 +11,7 @@
     "events": "^3.3.0",
     "path-to-regexp": "^6.2.0",
     "socket.io": "^4.0.1",
-    "socket.io-client": "^4.0.1",
+    "socket.io-client": "^4.0.2",
     "socketio-wildcard": "^2.0.0"
   },
   "author": "",
