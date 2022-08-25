@@ -4,7 +4,7 @@ This library allows you to build API's like in Express, but that also expose a w
 ## Example Usage
 ### Server Side
 ```javascript
-import { RestocketServer } from 'restocket';
+import { RestocketServer, RestocketRouter } from 'restocket';
 const server = new RestocketServer()
 
 // Receive an event when a client connects via websocket
@@ -18,7 +18,6 @@ server.get('/hello/:name', function (req, res) {
 })
 
 // You can also use other Restocket instances
-const {RestocketRouter} = require('restocket')
 const routes = new RestocketRouter()
 routes.get('/goodbye/:name', function (req, res) {
   res.send({ message: `Goodbye ${req.params.name}` })
