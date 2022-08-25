@@ -9,9 +9,9 @@
   },
   "dependencies": {
     "events": "^3.3.0",
-    "path-to-regexp": "^6.2.0",
+    "path-to-regexp": "^6.2.1",
+    "socket.io": "^4.5.1",
     "socket.io-client": "^4.5.1",
-    "socket.io": "^4.5.0",
     "socketio-wildcard": "^2.0.0"
   },
   "author": "",
