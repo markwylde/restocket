@@ -1,5 +1,3 @@
-module.exports = {
-  RestocketClient: require('./client.js'),
-  RestocketServer: require('./server.js'),
-  RestocketRouter: require('./server.js')
-};
+export { default as RestocketClient } from './client.js';
+export { default as RestocketServer } from './server.js';
+export { default as RestocketRouter } from './server.js';

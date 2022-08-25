@@ -1,6 +1,7 @@
-const http = require('http');
-const { pathToRegexp } = require('path-to-regexp');
-const querystring = require('querystring');
+import http from 'http';
+import { pathToRegexp } from 'path-to-regexp';
+import querystring from 'querystring';
+import { Server as SocketIoServer } from 'socket.io';
 
 const flatten = (fns, fn) => {
   function _flatten (arr) {
@@ -123,6 +124,10 @@ function RestocketServer () {
     }
   };
 
+  this.close = function () {
+    this.server.close();
+  };
+
   this.start = function (opts) {
     return new Promise((resolve, reject) => {
       opts = Object.assign({
@@ -130,12 +135,12 @@ function RestocketServer () {
         host: '0.0.0.0'
       }, opts);
 
-      const server = http.createServer((req, res) => {
+      this.server = http.createServer((req, res) => {
         res.writeHead(200, { 'Content-Type': 'text/plain' });
         res.end('http not implemented');
       });
 
-      const io = require('socket.io')(server);
+      const io = new SocketIoServer(this.server);
       io.on('connection', (socket) => {
         const req = {
           socket,
@@ -172,12 +177,12 @@ function RestocketServer () {
         });
       });
 
-      server.listen(opts.port, opts.host, (err) => {
+      this.server.listen(opts.port, opts.host, (err) => {
         if (err) return reject(err);
-        resolve(server);
+        resolve(this.server);
       });
     });
   };
 }
 
-module.exports = RestocketServer;
+export default RestocketServer;
