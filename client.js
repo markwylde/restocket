@@ -30,6 +30,10 @@ export default class RestocketClient {
     patch(this.socket);
   }
 
+  close () {
+    this.socket.close();
+  }
+
   waitForMessage (correlationId) {
     return new Promise((resolve, reject) => {
       const watcher = (message) => {

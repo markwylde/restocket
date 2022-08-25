@@ -1,10 +1,10 @@
 # Restocket
-This library allows you to build apis like in express, but that expose a websocket and http(s) endpoint.
+This library allows you to build API's like in Express, but that also expose a websocket and http(s) endpoint.
 
 ## Example Usage
 ### Server Side
 ```javascript
-const {RestocketServer} = require('restocket')
+import { RestocketServer } from 'restocket';
 const server = new RestocketServer()
 
 // Receive an event when a client connects via websocket
@@ -14,40 +14,36 @@ server.onSocketConnected(function (req, res) {
 
 // Add a new route
 server.get('/hello/:name', function (req, res) {
-  res.send({ message: `Hello ${name}` })
+  res.send({ message: `Hello ${req.params.name}` })
 })
 
 // You can also use other Restocket instances
 const {RestocketRouter} = require('restocket')
 const routes = new RestocketRouter()
 routes.get('/goodbye/:name', function (req, res) {
-  res.send({ message: `Goodbye ${name}` })
+  res.send({ message: `Goodbye ${req.params.name}` })
 })
 
 server.use(routes)
 
 // Start the websocket and http instance
-server.start({
+await server.start({
   port: 3000
-}).then(() => {
-  console.log('Listening')
 })
+
+console.log('Listening')
 ```
 
 ### Client Side
 ```javascript
-const {RestocketClient} = require('restocket')
+import { RestocketClient } from 'restocket';
 
 const api = new RestocketClient({
-  host: '127.0.0.1'
+  host: '127.0.0.1:3000'
 })
 
-async function main () {
-  const result = await api.get('/hello/tester')
-  console.log(result)
-}
-
-main()
+const result = await api.get('/hello/tester')
+console.log(result)
 ```
 
 ## How it works
