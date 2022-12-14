@@ -12,7 +12,7 @@
     "events": "^3.3.0",
     "path-to-regexp": "^6.2.1",
     "socket.io": "^4.5.3",
-    "socket.io-client": "^4.5.3",
+    "socket.io-client": "^4.5.4",
     "socketio-wildcard": "^2.0.0"
   },
   "devDependencies": {
