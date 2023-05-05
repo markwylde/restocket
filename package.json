@@ -16,7 +16,7 @@
     "socketio-wildcard": "^2.0.0"
   },
   "devDependencies": {
-    "basictap": "^4.2.1",
+    "basictap": "^4.3.2",
     "c8": "^7.13.0"
   },
   "author": "Mark Wylde <me@markwylde.com> (https://github.com/markwylde)",
